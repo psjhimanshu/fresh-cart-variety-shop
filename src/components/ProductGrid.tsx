@@ -1,77 +1,83 @@
 
+import { useState } from 'react';
+import { useProducts } from '@/hooks/useProducts';
 import { ProductCard } from './ProductCard';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  description: string;
-}
-
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Wireless Headphones",
-    price: 129.99,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
-    description: "Premium wireless headphones with noise cancellation"
-  },
-  {
-    id: 2,
-    name: "Smart Watch",
-    price: 299.99,
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop",
-    description: "Advanced fitness tracking with heart rate monitor"
-  },
-  {
-    id: 3,
-    name: "Gaming Laptop",
-    price: 1299.99,
-    image: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=400&h=300&fit=crop",
-    description: "High-performance gaming laptop for enthusiasts"
-  },
-  {
-    id: 4,
-    name: "Smartphone",
-    price: 799.99,
-    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
-    description: "Latest flagship smartphone with amazing camera"
-  },
-  {
-    id: 5,
-    name: "Bluetooth Speaker",
-    price: 89.99,
-    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop",
-    description: "Portable speaker with incredible sound quality"
-  },
-  {
-    id: 6,
-    name: "Tablet",
-    price: 449.99,
-    image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop",
-    description: "Versatile tablet perfect for work and entertainment"
-  }
-];
+import { CategoryFilter } from './CategoryFilter';
+import { SearchBar } from './SearchBar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const ProductGrid = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  const { data: products, isLoading, error } = useProducts(selectedCategory || undefined, searchQuery || undefined);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  if (error) {
+    return (
+      <section className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="text-center text-red-600">
+            <p>Failed to load products. Please try again later.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section id="products" className="py-20 px-4">
+    <section id="products" className="py-20 px-4 bg-gray-50">
       <div className="container mx-auto">
-        <div className="text-center mb-16">
-          <h3 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+        <div className="text-center mb-12">
+          <h3 className="text-4xl font-bold mb-4 text-gray-800">
             Featured Products
           </h3>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Explore our carefully curated collection of premium tech products
+            Discover our carefully curated selection of premium products
           </p>
         </div>
+
+        <SearchBar onSearch={handleSearch} />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <CategoryFilter 
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
+
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden">
+                <Skeleton className="w-full h-48" />
+                <div className="p-6 space-y-3">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <div className="flex justify-between items-center">
+                    <Skeleton className="h-8 w-20" />
+                    <Skeleton className="h-10 w-32" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : products && products.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-xl text-gray-600">No products found</p>
+            {(selectedCategory || searchQuery) && (
+              <p className="text-gray-500 mt-2">Try adjusting your filters or search terms</p>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

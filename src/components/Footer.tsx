@@ -1,87 +1,111 @@
 
-import { ShoppingCart, Heart, Star } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-16">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand */}
+    <footer className="bg-gray-900 text-white">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Company Info */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                CoolCart
-              </h3>
+            <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              ShopePlane
             </div>
-            <p className="text-gray-400">
-              Your premium destination for the latest tech products and gadgets.
+            <p className="text-gray-300 leading-relaxed">
+              Your trusted partner for premium products and exceptional shopping experiences. Quality, style, and value in every purchase.
             </p>
-            <div className="flex items-center space-x-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className="w-4 h-4 text-yellow-400 fill-current" />
-              ))}
-              <span className="text-sm text-gray-400 ml-2">Trusted by thousands</span>
+            <div className="flex space-x-4">
+              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                <Facebook className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                <Twitter className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                <Instagram className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                <Youtube className="w-5 h-5" />
+              </Button>
             </div>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Quick Links</h3>
             <ul className="space-y-2">
-              {['Home', 'Products', 'About Us', 'Contact', 'FAQ'].map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                    {link}
-                  </a>
-                </li>
-              ))}
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">About Us</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Products</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Categories</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Deals</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Contact</a></li>
             </ul>
           </div>
 
-          {/* Categories */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Categories</h4>
+          {/* Customer Service */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Customer Service</h3>
             <ul className="space-y-2">
-              {['Electronics', 'Computers', 'Smartphones', 'Gaming', 'Audio'].map((category) => (
-                <li key={category}>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                    {category}
-                  </a>
-                </li>
-              ))}
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Help Center</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Shipping Info</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Returns</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Size Guide</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Track Order</a></li>
             </ul>
           </div>
 
           {/* Newsletter */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Stay Updated</h4>
-            <p className="text-gray-400 mb-4">
-              Subscribe to get special offers and updates.
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Stay Updated</h3>
+            <p className="text-gray-300 text-sm">
+              Subscribe to our newsletter for exclusive deals and updates.
             </p>
-            <div className="space-y-2">
-              <input
+            <div className="flex space-x-2">
+              <Input
                 type="email"
                 placeholder="Enter your email"
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white"
+                className="bg-gray-800 border-gray-700 text-white placeholder-gray-400"
               />
-              <button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 rounded-lg hover:shadow-lg transition-all duration-300">
+              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
                 Subscribe
-              </button>
+              </Button>
+            </div>
+            
+            <div className="space-y-2 text-sm text-gray-300">
+              <div className="flex items-center space-x-2">
+                <Mail className="w-4 h-4" />
+                <span>support@shopeplane.com</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Phone className="w-4 h-4" />
+                <span>+1 (555) 123-4567</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <MapPin className="w-4 h-4" />
+                <span>123 Shopping St, City, State 12345</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm">
-            © 2024 CoolCart. All rights reserved.
-          </p>
-          <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            <span className="text-gray-400 text-sm">Made with</span>
-            <Heart className="w-4 h-4 text-red-500 fill-current" />
-            <span className="text-gray-400 text-sm">by CoolCart Team</span>
+        <div className="border-t border-gray-800 mt-8 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-400 text-sm">
+              © 2024 ShopePlane. All rights reserved.
+            </p>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Privacy Policy
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Terms of Service
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Cookie Policy
+              </a>
+            </div>
           </div>
         </div>
       </div>
