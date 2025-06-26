@@ -1,16 +1,31 @@
 
 import { useState } from 'react';
-import { ShoppingCart, Menu, User, Search, Heart } from 'lucide-react';
+import { ShoppingCart, Menu, User, Search, Heart, LogOut } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const Header = () => {
   const { getTotalItems, setIsCartOpen } = useCart();
+  const { user, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const totalItems = getTotalItems();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm border-b">
@@ -18,9 +33,9 @@ export const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="text-2xl font-bold text-gray-900">
+            <Link to="/" className="text-2xl font-bold text-gray-900">
               ShopEase
-            </div>
+            </Link>
           </div>
 
           {/* Search Bar - Desktop */}
@@ -41,9 +56,28 @@ export const Header = () => {
               <Heart className="w-5 h-5" />
             </Button>
             
-            <Button variant="ghost" size="icon">
-              <User className="w-5 h-5" />
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="w-5 h-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    Admin Panel
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="ghost" size="icon" onClick={() => navigate('/auth')}>
+                <User className="w-5 h-5" />
+              </Button>
+            )}
 
             <Button
               variant="ghost"
@@ -87,60 +121,26 @@ export const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden border-t bg-white pb-4">
             <nav className="flex flex-col space-y-4 pt-4">
-              <a href="#categories" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
-                Categories
-              </a>
-              <a href="#electronics" className="text-gray-600 hover:text-blue-600 transition-colors pl-4">
-                Electronics
-              </a>
-              <a href="#clothing" className="text-gray-600 hover:text-blue-600 transition-colors pl-4">
-                Clothing
-              </a>
-              <a href="#home-garden" className="text-gray-600 hover:text-blue-600 transition-colors pl-4">
-                Home & Garden
-              </a>
-              <a href="#sports" className="text-gray-600 hover:text-blue-600 transition-colors pl-4">
-                Sports
-              </a>
-              <a href="#books" className="text-gray-600 hover:text-blue-600 transition-colors pl-4">
-                Books
-              </a>
-              <a href="#beauty" className="text-gray-600 hover:text-blue-600 transition-colors pl-4">
-                Beauty
-              </a>
-              <div className="border-t pt-4">
-                <a href="#login" className="text-gray-700 hover:text-blue-600 transition-colors font-medium flex items-center">
-                  <User className="w-4 h-4 mr-2" />
-                  Login
-                </a>
-              </div>
-              <a href="#signup" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
-                Sign Up
-              </a>
-              <div className="border-t pt-4">
-                <a href="#customer-service" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
-                  Customer Service
-                </a>
-              </div>
-              <a href="#contact" className="text-gray-600 hover:text-blue-600 transition-colors pl-4">
-                Contact Us
-              </a>
-              <a href="#returns" className="text-gray-600 hover:text-blue-600 transition-colors pl-4">
-                Returns Policy
-              </a>
-              <a href="#shipping" className="text-gray-600 hover:text-blue-600 transition-colors pl-4">
-                Shipping Information
-              </a>
-              <div className="flex items-center justify-between pt-4">
-                <Button variant="ghost" size="sm" className="flex items-center">
-                  <Heart className="w-4 h-4 mr-2" />
-                  Wishlist
-                </Button>
-                <Button variant="ghost" size="sm" className="flex items-center">
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Cart
-                </Button>
-              </div>
+              <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+                Home
+              </Link>
+              {user ? (
+                <>
+                  <Link to="/admin" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+                    Admin Panel
+                  </Link>
+                  <button 
+                    onClick={handleSignOut}
+                    className="text-left text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link to="/auth" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+                  Login / Sign Up
+                </Link>
+              )}
             </nav>
           </div>
         )}

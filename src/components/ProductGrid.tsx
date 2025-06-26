@@ -48,7 +48,7 @@ export const ProductGrid = ({ initialCategory }: ProductGridProps) => {
           </h3>
           {products && products.length > 0 && (
             <p className="text-gray-600">
-              Loading products...
+              Discover our amazing collection of products
             </p>
           )}
         </div>

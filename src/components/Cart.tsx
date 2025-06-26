@@ -1,11 +1,13 @@
 
 import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useNavigate } from 'react-router-dom';
 
 export const Cart = () => {
   const {
@@ -19,9 +21,21 @@ export const Cart = () => {
     isLoading,
     clearCart
   } = useCart();
+  
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const totalPrice = getTotalPrice();
   const totalItems = getTotalItems();
+
+  const handleCheckout = () => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    navigate('/checkout');
+    setIsCartOpen(false);
+  };
 
   if (!isCartOpen) return null;
 
@@ -95,7 +109,7 @@ export const Cart = () => {
                           {item.name}
                         </h4>
                         <p className="text-purple-600 font-semibold">
-                          ${item.price}
+                          ₹{item.price}
                         </p>
                         
                         <div className="flex items-center justify-between mt-2">
@@ -145,7 +159,7 @@ export const Cart = () => {
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-gray-600">Subtotal</span>
                   <span className="text-xl font-bold text-gray-800">
-                    ${totalPrice.toFixed(2)}
+                    ₹{totalPrice.toFixed(2)}
                   </span>
                 </div>
                 
@@ -155,8 +169,9 @@ export const Cart = () => {
                   <Button
                     className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                     size="lg"
+                    onClick={handleCheckout}
                   >
-                    Proceed to Checkout
+                    {user ? 'Proceed to Checkout' : 'Login to Checkout'}
                   </Button>
                   
                   <div className="flex space-x-2">
