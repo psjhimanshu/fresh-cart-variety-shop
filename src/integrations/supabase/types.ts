@@ -177,6 +177,7 @@ export type Database = {
           currency: string | null
           email: string
           id: string
+          payment_status: string | null
           shipping_address: Json | null
           shipping_amount: number | null
           status: string | null
@@ -191,6 +192,7 @@ export type Database = {
           currency?: string | null
           email: string
           id?: string
+          payment_status?: string | null
           shipping_address?: Json | null
           shipping_amount?: number | null
           status?: string | null
@@ -205,6 +207,7 @@ export type Database = {
           currency?: string | null
           email?: string
           id?: string
+          payment_status?: string | null
           shipping_address?: Json | null
           shipping_amount?: number | null
           status?: string | null
@@ -309,6 +312,38 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      wishlist_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

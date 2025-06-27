@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ShoppingCart, Menu, User, Heart, LogOut, Search, ChevronDown } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useWishlist } from '@/contexts/WishlistContext';
+import { useWishlist } from '@/contexts/WishlistProvider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -46,7 +46,7 @@ export const Header = ({ onSearch, onCategorySelect }: HeaderProps) => {
 
   const categories = [
     { id: 'electronics', name: 'Electronics' },
-    { id: 'clothing', name: 'Clothing' },
+    { id: 'fashion', name: 'Fashion' }, 
     { id: 'home-garden', name: 'Home & Garden' },
     { id: 'sports', name: 'Sports' },
     { id: 'books', name: 'Books' },
@@ -133,7 +133,7 @@ export const Header = ({ onSearch, onCategorySelect }: HeaderProps) => {
               variant="ghost" 
               size="icon" 
               className="relative"
-              onClick={() => setShowWishlist(!showWishlist)}
+              onClick={() => navigate('/wishlist')}
             >
               <Heart className="w-5 h-5" />
               {wishlistCount > 0 && (
@@ -195,6 +195,9 @@ export const Header = ({ onSearch, onCategorySelect }: HeaderProps) => {
                   </button>
                 ))}
               </div>
+              <Link to="/wishlist" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+                My Wishlist ({wishlistCount})
+              </Link>
               {user ? (
                 <>
                   <Link to="/admin" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
@@ -213,51 +216,6 @@ export const Header = ({ onSearch, onCategorySelect }: HeaderProps) => {
                 </Link>
               )}
             </nav>
-          </div>
-        )}
-
-        {/* Wishlist Dropdown */}
-        {showWishlist && (
-          <div className="absolute right-4 top-16 w-80 bg-white shadow-xl rounded-lg border z-50">
-            <div className="p-4 border-b">
-              <h3 className="font-semibold">My Wishlist ({wishlistCount})</h3>
-            </div>
-            <div className="max-h-64 overflow-y-auto">
-              {wishlistItems.length === 0 ? (
-                <div className="p-4 text-center text-gray-500">
-                  <Heart className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-                  <p>Your wishlist is empty</p>
-                </div>
-              ) : (
-                wishlistItems.slice(0, 3).map((item) => (
-                  <div key={item.id} className="p-4 border-b last:border-b-0 flex items-center space-x-3">
-                    <img
-                      src={item.image_url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=50&h=50&fit=crop'}
-                      alt={item.name}
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm">{item.name}</h4>
-                      <p className="text-blue-600 font-semibold">₹{item.price}</p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            {wishlistItems.length > 0 && (
-              <div className="p-4 border-t">
-                <Button
-                  onClick={() => {
-                    navigate('/wishlist');
-                    setShowWishlist(false);
-                  }}
-                  className="w-full"
-                  variant="outline"
-                >
-                  View All
-                </Button>
-              </div>
-            )}
           </div>
         )}
       </div>
