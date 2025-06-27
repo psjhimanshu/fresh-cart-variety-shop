@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
 export const CheckoutForm = () => {
@@ -26,10 +27,13 @@ export const CheckoutForm = () => {
     city: '',
     state: '',
     postalCode: '',
-    country: 'India'
+    country: 'India',
+    landmark: '',
+    addressType: 'home',
+    instructions: ''
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setShippingForm(prev => ({
       ...prev,
@@ -42,17 +46,43 @@ export const CheckoutForm = () => {
     setLoading(true);
 
     try {
+      // Validate required fields
+      const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'postalCode'];
+      const missingFields = requiredFields.filter(field => !shippingForm[field as keyof typeof shippingForm]);
+      
+      if (missingFields.length > 0) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all required shipping details",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
+      const totalAmount = getTotalPrice();
+      const shippingCost = 50;
+      const tax = totalAmount * 0.18;
+      const finalTotal = totalAmount + shippingCost + tax;
+
       // Create order
       const orderData = {
         user_id: user?.id,
         email: shippingForm.email,
-        total_amount: getTotalPrice(),
-        shipping_amount: 50,
-        tax_amount: getTotalPrice() * 0.18,
-        shipping_address: shippingForm,
-        billing_address: shippingForm,
+        total_amount: finalTotal,
+        shipping_amount: shippingCost,
+        tax_amount: tax,
+        shipping_address: {
+          ...shippingForm,
+          type: 'shipping'
+        },
+        billing_address: {
+          ...shippingForm,
+          type: 'billing'
+        },
         status: 'pending',
-        payment_method: paymentMethod
+        payment_method: paymentMethod,
+        payment_status: paymentMethod === 'cod' ? 'pending' : 'awaiting_payment'
       };
 
       const { data: order, error: orderError } = await supabase
@@ -86,6 +116,7 @@ export const CheckoutForm = () => {
           first_name: shippingForm.firstName,
           last_name: shippingForm.lastName,
           address_line_1: shippingForm.address,
+          address_line_2: shippingForm.landmark,
           city: shippingForm.city,
           state: shippingForm.state,
           postal_code: shippingForm.postalCode,
@@ -112,7 +143,10 @@ export const CheckoutForm = () => {
         city: '',
         state: '',
         postalCode: '',
-        country: 'India'
+        country: 'India',
+        landmark: '',
+        addressType: 'home',
+        instructions: ''
       });
 
     } catch (error) {
@@ -137,83 +171,160 @@ export const CheckoutForm = () => {
       {/* Shipping Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Shipping Information</CardTitle>
+          <CardTitle>Shipping Details</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="firstName">First Name *</Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  placeholder="First Name"
+                  value={shippingForm.firstName}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="lastName">Last Name *</Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  placeholder="Last Name"
+                  value={shippingForm.lastName}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="email">Email *</Label>
               <Input
-                name="firstName"
-                placeholder="First Name"
-                value={shippingForm.firstName}
-                onChange={handleInputChange}
-                required
-              />
-              <Input
-                name="lastName"
-                placeholder="Last Name"
-                value={shippingForm.lastName}
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Email"
+                value={shippingForm.email}
                 onChange={handleInputChange}
                 required
               />
             </div>
             
-            <Input
-              name="email"
-              type="email"
-              placeholder="Email"
-              value={shippingForm.email}
-              onChange={handleInputChange}
-              required
-            />
-            
-            <Input
-              name="phone"
-              placeholder="Phone Number"
-              value={shippingForm.phone}
-              onChange={handleInputChange}
-              required
-            />
-            
-            <Input
-              name="address"
-              placeholder="Street Address"
-              value={shippingForm.address}
-              onChange={handleInputChange}
-              required
-            />
-            
-            <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="phone">Phone Number *</Label>
               <Input
-                name="city"
-                placeholder="City"
-                value={shippingForm.city}
-                onChange={handleInputChange}
-                required
-              />
-              <Input
-                name="state"
-                placeholder="State"
-                value={shippingForm.state}
+                id="phone"
+                name="phone"
+                placeholder="Phone Number"
+                value={shippingForm.phone}
                 onChange={handleInputChange}
                 required
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="address">Street Address *</Label>
               <Input
-                name="postalCode"
-                placeholder="Postal Code"
-                value={shippingForm.postalCode}
+                id="address"
+                name="address"
+                placeholder="House No, Street Name"
+                value={shippingForm.address}
                 onChange={handleInputChange}
                 required
               />
+            </div>
+
+            <div>
+              <Label htmlFor="landmark">Landmark (Optional)</Label>
               <Input
-                name="country"
-                placeholder="Country"
-                value={shippingForm.country}
+                id="landmark"
+                name="landmark"
+                placeholder="Near landmark"
+                value={shippingForm.landmark}
                 onChange={handleInputChange}
-                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="city">City *</Label>
+                <Input
+                  id="city"
+                  name="city"
+                  placeholder="City"
+                  value={shippingForm.city}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="state">State *</Label>
+                <Input
+                  id="state"
+                  name="state"
+                  placeholder="State"
+                  value={shippingForm.state}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="postalCode">Postal Code *</Label>
+                <Input
+                  id="postalCode"
+                  name="postalCode"
+                  placeholder="Postal Code"
+                  value={shippingForm.postalCode}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="country">Country *</Label>
+                <Input
+                  id="country"
+                  name="country"
+                  placeholder="Country"
+                  value={shippingForm.country}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="addressType">Address Type</Label>
+              <RadioGroup 
+                value={shippingForm.addressType} 
+                onValueChange={(value) => setShippingForm(prev => ({ ...prev, addressType: value }))}
+                className="flex flex-row space-x-4 mt-2"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="home" id="home" />
+                  <Label htmlFor="home">Home</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="office" id="office" />
+                  <Label htmlFor="office">Office</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div>
+              <Label htmlFor="instructions">Delivery Instructions (Optional)</Label>
+              <Textarea
+                id="instructions"
+                name="instructions"
+                placeholder="Any special delivery instructions"
+                value={shippingForm.instructions}
+                onChange={handleInputChange}
+                rows={3}
               />
             </div>
 
@@ -221,19 +332,25 @@ export const CheckoutForm = () => {
             <div className="space-y-3">
               <Label className="text-base font-medium">Payment Method</Label>
               <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="flex flex-col space-y-2">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 p-3 border rounded-lg">
                   <RadioGroupItem value="cod" id="cod" />
-                  <Label htmlFor="cod">Cash on Delivery</Label>
+                  <div className="flex-1">
+                    <Label htmlFor="cod" className="font-medium">Cash on Delivery</Label>
+                    <p className="text-sm text-gray-500">Pay when your order is delivered</p>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 p-3 border rounded-lg">
                   <RadioGroupItem value="online" id="online" />
-                  <Label htmlFor="online">Online Payment</Label>
+                  <div className="flex-1">
+                    <Label htmlFor="online" className="font-medium">Online Payment</Label>
+                    <p className="text-sm text-gray-500">Pay securely online</p>
+                  </div>
                 </div>
               </RadioGroup>
             </div>
             
             <Button type="submit" className="w-full" disabled={loading || cartItems.length === 0}>
-              {loading ? 'Processing...' : `Place Order (${paymentMethod === 'cod' ? 'COD' : 'Pay Online'})`}
+              {loading ? 'Processing...' : `Place Order - ₹${finalTotal.toFixed(2)} (${paymentMethod === 'cod' ? 'COD' : 'Pay Online'})`}
             </Button>
           </form>
         </CardContent>
@@ -246,9 +363,19 @@ export const CheckoutForm = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {cartItems.map((item) => (
-            <div key={item.id} className="flex justify-between">
-              <span>{item.name} x {item.quantity}</span>
-              <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+            <div key={item.id} className="flex justify-between items-center">
+              <div className="flex items-center space-x-3">
+                <img
+                  src={item.image_url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=50&h=50&fit=crop'}
+                  alt={item.name}
+                  className="w-12 h-12 object-cover rounded"
+                />
+                <div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                </div>
+              </div>
+              <span className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</span>
             </div>
           ))}
           
@@ -270,6 +397,14 @@ export const CheckoutForm = () => {
               <span>₹{finalTotal.toFixed(2)}</span>
             </div>
           </div>
+
+          {paymentMethod === 'cod' && (
+            <div className="bg-yellow-50 p-3 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                <strong>Cash on Delivery:</strong> Please keep exact change ready. Our delivery partner will collect ₹{finalTotal.toFixed(2)} at the time of delivery.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

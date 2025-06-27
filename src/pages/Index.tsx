@@ -8,6 +8,7 @@ import { NewsletterSection } from '@/components/NewsletterSection';
 import { Footer } from '@/components/Footer';
 import { Cart } from '@/components/Cart';
 import { CartProvider } from '@/contexts/CartContext';
+import { WishlistProvider } from '@/contexts/WishlistProvider';
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -29,18 +30,20 @@ const Index = () => {
 
   return (
     <CartProvider>
-      <div className="min-h-screen bg-white">
-        <Header onSearch={handleSearch} />
-        {!searchQuery && <Hero />}
-        {!searchQuery && <CategorySection onCategorySelect={handleCategorySelect} />}
-        <ProductGrid 
-          initialCategory={selectedCategory} 
-          searchQuery={searchQuery}
-        />
-        {!searchQuery && <NewsletterSection />}
-        <Footer />
-        <Cart />
-      </div>
+      <WishlistProvider>
+        <div className="min-h-screen bg-white">
+          <Header onSearch={handleSearch} onCategorySelect={handleCategorySelect} />
+          {!searchQuery && <Hero />}
+          {!searchQuery && <CategorySection onCategorySelect={handleCategorySelect} />}
+          <ProductGrid 
+            initialCategory={selectedCategory} 
+            searchQuery={searchQuery}
+          />
+          {!searchQuery && <NewsletterSection />}
+          <Footer />
+          <Cart />
+        </div>
+      </WishlistProvider>
     </CartProvider>
   );
 };

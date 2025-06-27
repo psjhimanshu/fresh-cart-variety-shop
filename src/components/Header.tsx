@@ -1,8 +1,9 @@
 
 import { useState } from 'react';
-import { ShoppingCart, Menu, User, Heart, LogOut, Search } from 'lucide-react';
+import { ShoppingCart, Menu, User, Heart, LogOut, Search, ChevronDown } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -16,16 +17,20 @@ import { Link, useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
+  onCategorySelect?: (categoryId: string) => void;
 }
 
-export const Header = ({ onSearch }: HeaderProps) => {
+export const Header = ({ onSearch, onCategorySelect }: HeaderProps) => {
   const { getTotalItems, setIsCartOpen } = useCart();
+  const { wishlistItems } = useWishlist();
   const { user, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showWishlist, setShowWishlist] = useState(false);
   const navigate = useNavigate();
 
   const totalItems = getTotalItems();
+  const wishlistCount = wishlistItems.length;
 
   const handleSignOut = async () => {
     await signOut();
@@ -38,6 +43,14 @@ export const Header = ({ onSearch }: HeaderProps) => {
       onSearch(searchQuery);
     }
   };
+
+  const categories = [
+    { id: 'electronics', name: 'Electronics' },
+    { id: 'clothing', name: 'Clothing' },
+    { id: 'home-garden', name: 'Home & Garden' },
+    { id: 'sports', name: 'Sports' },
+    { id: 'books', name: 'Books' },
+  ];
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm border-b">
@@ -58,9 +71,28 @@ export const Header = ({ onSearch }: HeaderProps) => {
             </Link>
           </div>
 
-          {/* Center - Search Bar (desktop) */}
-          <div className="hidden md:block flex-1 max-w-md mx-4">
-            <form onSubmit={handleSearch} className="relative">
+          {/* Center - Search Bar and Categories */}
+          <div className="hidden md:flex items-center space-x-4 flex-1 max-w-2xl mx-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="whitespace-nowrap">
+                  Categories
+                  <ChevronDown className="w-4 h-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                {categories.map((category) => (
+                  <DropdownMenuItem
+                    key={category.id}
+                    onClick={() => onCategorySelect?.(category.id)}
+                  >
+                    {category.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <form onSubmit={handleSearch} className="flex-1 relative">
               <Input
                 type="text"
                 placeholder="Search products..."
@@ -72,12 +104,8 @@ export const Header = ({ onSearch }: HeaderProps) => {
             </form>
           </div>
 
-          {/* Right side - Categories, Account, Wishlist, Cart */}
+          {/* Right side - Account, Wishlist, Cart */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" className="hidden md:flex text-gray-700 hover:text-blue-600">
-              Categories
-            </Button>
-
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -101,9 +129,18 @@ export const Header = ({ onSearch }: HeaderProps) => {
               </Button>
             )}
 
-            <Button variant="ghost" size="icon" className="relative">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="relative"
+              onClick={() => setShowWishlist(!showWishlist)}
+            >
               <Heart className="w-5 h-5" />
-              <span className="sr-only">Wishlist</span>
+              {wishlistCount > 0 && (
+                <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-red-500">
+                  {wishlistCount > 99 ? '99+' : wishlistCount}
+                </Badge>
+              )}
             </Button>
 
             <Button
@@ -143,9 +180,21 @@ export const Header = ({ onSearch }: HeaderProps) => {
               <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
                 Home
               </Link>
-              <Button variant="ghost" className="justify-start text-gray-700 hover:text-blue-600">
-                Categories
-              </Button>
+              <div className="space-y-2">
+                <p className="font-medium text-gray-900">Categories</p>
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => {
+                      onCategorySelect?.(category.id);
+                      setIsMenuOpen(false);
+                    }}
+                    className="block text-left text-gray-600 hover:text-blue-600 transition-colors pl-4"
+                  >
+                    {category.name}
+                  </button>
+                ))}
+              </div>
               {user ? (
                 <>
                   <Link to="/admin" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
@@ -164,6 +213,51 @@ export const Header = ({ onSearch }: HeaderProps) => {
                 </Link>
               )}
             </nav>
+          </div>
+        )}
+
+        {/* Wishlist Dropdown */}
+        {showWishlist && (
+          <div className="absolute right-4 top-16 w-80 bg-white shadow-xl rounded-lg border z-50">
+            <div className="p-4 border-b">
+              <h3 className="font-semibold">My Wishlist ({wishlistCount})</h3>
+            </div>
+            <div className="max-h-64 overflow-y-auto">
+              {wishlistItems.length === 0 ? (
+                <div className="p-4 text-center text-gray-500">
+                  <Heart className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                  <p>Your wishlist is empty</p>
+                </div>
+              ) : (
+                wishlistItems.slice(0, 3).map((item) => (
+                  <div key={item.id} className="p-4 border-b last:border-b-0 flex items-center space-x-3">
+                    <img
+                      src={item.image_url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=50&h=50&fit=crop'}
+                      alt={item.name}
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">{item.name}</h4>
+                      <p className="text-blue-600 font-semibold">₹{item.price}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            {wishlistItems.length > 0 && (
+              <div className="p-4 border-t">
+                <Button
+                  onClick={() => {
+                    navigate('/wishlist');
+                    setShowWishlist(false);
+                  }}
+                  className="w-full"
+                  variant="outline"
+                >
+                  View All
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
