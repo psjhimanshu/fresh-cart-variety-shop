@@ -6,6 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
 export const CheckoutForm = () => {
@@ -13,6 +15,7 @@ export const CheckoutForm = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('cod');
   
   const [shippingForm, setShippingForm] = useState({
     firstName: '',
@@ -44,11 +47,12 @@ export const CheckoutForm = () => {
         user_id: user?.id,
         email: shippingForm.email,
         total_amount: getTotalPrice(),
-        shipping_amount: 50, // Fixed shipping cost
-        tax_amount: getTotalPrice() * 0.18, // 18% GST
+        shipping_amount: 50,
+        tax_amount: getTotalPrice() * 0.18,
         shipping_address: shippingForm,
         billing_address: shippingForm,
-        status: 'pending'
+        status: 'pending',
+        payment_method: paymentMethod
       };
 
       const { data: order, error: orderError } = await supabase
@@ -95,7 +99,7 @@ export const CheckoutForm = () => {
       
       toast({
         title: "Order Placed Successfully!",
-        description: `Your order #${order.id.slice(0, 8)} has been placed. You will receive a confirmation email shortly.`,
+        description: `Your order #${order.id.slice(0, 8)} has been placed with ${paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}. You will receive a confirmation email shortly.`,
       });
 
       // Reset form
@@ -212,9 +216,24 @@ export const CheckoutForm = () => {
                 required
               />
             </div>
+
+            {/* Payment Method */}
+            <div className="space-y-3">
+              <Label className="text-base font-medium">Payment Method</Label>
+              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="flex flex-col space-y-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="cod" id="cod" />
+                  <Label htmlFor="cod">Cash on Delivery</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="online" id="online" />
+                  <Label htmlFor="online">Online Payment</Label>
+                </div>
+              </RadioGroup>
+            </div>
             
             <Button type="submit" className="w-full" disabled={loading || cartItems.length === 0}>
-              {loading ? 'Processing...' : 'Place Order'}
+              {loading ? 'Processing...' : `Place Order (${paymentMethod === 'cod' ? 'COD' : 'Pay Online'})`}
             </Button>
           </form>
         </CardContent>

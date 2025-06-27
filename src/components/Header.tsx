@@ -1,11 +1,10 @@
 
 import { useState } from 'react';
-import { ShoppingCart, Menu, User, Search, Heart, LogOut } from 'lucide-react';
+import { ShoppingCart, Menu, User, Heart, LogOut } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,31 +30,30 @@ export const Header = () => {
     <header className="sticky top-0 z-50 bg-white shadow-sm border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Left - Menu button for mobile and Logo */}
           <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
             <Link to="/" className="text-2xl font-bold text-gray-900">
               ShopEase
             </Link>
           </div>
 
-          {/* Search Bar - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                type="text"
-                placeholder="Search products..."
-                className="pl-10 w-full"
-              />
-            </div>
+          {/* Center - Categories (desktop only) */}
+          <div className="hidden md:flex">
+            <Button variant="ghost" className="text-gray-700 hover:text-blue-600">
+              Categories
+            </Button>
           </div>
 
-          {/* Right side icons */}
+          {/* Right side - Account, Wishlist, Cart */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="hidden md:flex">
-              <Heart className="w-5 h-5" />
-            </Button>
-            
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -79,6 +77,16 @@ export const Header = () => {
               </Button>
             )}
 
+            <Button variant="ghost" size="icon" className="relative">
+              <Heart className="w-5 h-5" />
+              <span className="sr-only">Account</span>
+            </Button>
+
+            <Button variant="ghost" size="icon" className="relative">
+              <Heart className="w-5 h-5" />
+              <span className="sr-only">Wishlist</span>
+            </Button>
+
             <Button
               variant="ghost"
               size="icon"
@@ -92,28 +100,6 @@ export const Header = () => {
                 </Badge>
               )}
             </Button>
-
-            {/* Mobile menu button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile Search Bar */}
-        <div className="md:hidden pb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              type="text"
-              placeholder="Search products..."
-              className="pl-10 w-full"
-            />
           </div>
         </div>
 
@@ -124,6 +110,9 @@ export const Header = () => {
               <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
                 Home
               </Link>
+              <Button variant="ghost" className="justify-start text-gray-700 hover:text-blue-600">
+                Categories
+              </Button>
               {user ? (
                 <>
                   <Link to="/admin" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">

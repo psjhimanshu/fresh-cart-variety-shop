@@ -11,15 +11,17 @@ export const CategorySection = ({ onCategorySelect }: CategorySectionProps) => {
 
   if (isLoading) {
     return (
-      <section className="py-12 px-4 bg-white">
+      <section className="py-12 px-4 bg-gray-50">
         <div className="container mx-auto">
-          <h2 className="text-2xl font-bold mb-8 text-center">Shop by Category</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="text-center">
-                <Skeleton className="w-full h-32 rounded-lg mb-3" />
-                <Skeleton className="h-4 w-20 mx-auto" />
-                <Skeleton className="h-3 w-16 mx-auto mt-1" />
+          <h2 className="text-3xl font-bold mb-8 text-center text-gray-900">Shop by Category</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <Skeleton className="w-full h-64" />
+                <div className="p-6 text-center">
+                  <Skeleton className="h-6 w-32 mx-auto mb-2" />
+                  <Skeleton className="h-4 w-20 mx-auto" />
+                </div>
               </div>
             ))}
           </div>
@@ -29,25 +31,28 @@ export const CategorySection = ({ onCategorySelect }: CategorySectionProps) => {
   }
 
   return (
-    <section className="py-12 px-4 bg-white">
+    <section className="py-12 px-4 bg-gray-50">
       <div className="container mx-auto">
-        <h2 className="text-2xl font-bold mb-8 text-center text-gray-900">Shop by Category</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories?.slice(0, 6).map((category) => (
+        <h2 className="text-3xl font-bold mb-8 text-center text-gray-900">Shop by Category</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {categories?.slice(0, 3).map((category) => (
             <div
               key={category.id}
-              className="text-center cursor-pointer group"
+              className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer group hover:shadow-md transition-shadow"
               onClick={() => onCategorySelect?.(category.id)}
             >
-              <div className="bg-gray-100 rounded-lg mb-3 overflow-hidden group-hover:shadow-md transition-shadow">
+              <div className="h-64 overflow-hidden">
                 <img
-                  src={category.image_url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=200&h=200&fit=crop'}
+                  src={category.image_url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop'}
                   alt={category.name}
-                  className="w-full h-32 object-cover group-hover:scale-105 transition-transform"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <h3 className="font-medium text-gray-900 text-sm">{category.name}</h3>
-              <p className="text-xs text-gray-500">0 products</p>
+              <div className="p-6 text-center">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">{category.name}</h3>
+                <p className="text-gray-500 text-sm">0 products</p>
+              </div>
             </div>
           ))}
         </div>

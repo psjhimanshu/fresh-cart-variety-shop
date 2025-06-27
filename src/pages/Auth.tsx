@@ -19,9 +19,44 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const validatePassword = (password: string) => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (password.length < minLength) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!hasUpperCase) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!hasLowerCase) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!hasNumbers) {
+      return 'Password must contain at least one number';
+    }
+    if (!hasSpecialChar) {
+      return 'Password must contain at least one special character';
+    }
+    return null;
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      toast({
+        title: "Invalid Password",
+        description: passwordError,
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast({
         title: "Error",
@@ -175,7 +210,7 @@ const Auth = () => {
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Password"
+                    placeholder="Password (min 8 chars, upper/lower case, number, special char)"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required

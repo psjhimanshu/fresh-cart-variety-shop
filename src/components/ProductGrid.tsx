@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useProducts } from '@/hooks/useProducts';
 import { ProductCard } from './ProductCard';
 import { CategoryFilter } from './CategoryFilter';
-import { SearchBar } from './SearchBar';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProductGridProps {
@@ -12,7 +11,6 @@ interface ProductGridProps {
 
 export const ProductGrid = ({ initialCategory }: ProductGridProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(initialCategory || null);
-  const [searchQuery, setSearchQuery] = useState<string>('');
   
   // Update selected category when initialCategory changes
   useEffect(() => {
@@ -21,11 +19,7 @@ export const ProductGrid = ({ initialCategory }: ProductGridProps) => {
     }
   }, [initialCategory]);
   
-  const { data: products, isLoading, error } = useProducts(selectedCategory || undefined, searchQuery || undefined);
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
+  const { data: products, isLoading, error } = useProducts(selectedCategory || undefined);
 
   if (error) {
     return (
@@ -40,7 +34,7 @@ export const ProductGrid = ({ initialCategory }: ProductGridProps) => {
   }
 
   return (
-    <section id="products" className="py-12 px-4 bg-gray-50">
+    <section id="products" className="py-12 px-4 bg-white">
       <div className="container mx-auto">
         <div className="text-center mb-8">
           <h3 className="text-3xl font-bold mb-4 text-gray-900">
@@ -52,8 +46,6 @@ export const ProductGrid = ({ initialCategory }: ProductGridProps) => {
             </p>
           )}
         </div>
-
-        <SearchBar onSearch={handleSearch} />
         
         <CategoryFilter 
           selectedCategory={selectedCategory}
@@ -86,8 +78,8 @@ export const ProductGrid = ({ initialCategory }: ProductGridProps) => {
         ) : (
           <div className="text-center py-12">
             <p className="text-xl text-gray-600">No products found</p>
-            {(selectedCategory || searchQuery) && (
-              <p className="text-gray-500 mt-2">Try adjusting your filters or search terms</p>
+            {selectedCategory && (
+              <p className="text-gray-500 mt-2">Try selecting a different category</p>
             )}
           </div>
         )}
