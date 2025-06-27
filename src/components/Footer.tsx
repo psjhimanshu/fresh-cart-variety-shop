@@ -2,8 +2,17 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useState } from 'react';
 
 export const Footer = () => {
+  const [email, setEmail] = useState('');
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Subscribing email:', email);
+    setEmail('');
+  };
+
   return (
     <footer className="bg-gray-800 text-white">
       <div className="container mx-auto px-4 py-12">
@@ -13,16 +22,22 @@ export const Footer = () => {
           <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
             Subscribe to our newsletter for the latest deals and products
           </p>
-          <div className="flex max-w-md mx-auto">
+          <form onSubmit={handleSubscribe} className="flex max-w-md mx-auto">
             <Input
               type="email"
               placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="flex-1 bg-white text-gray-900 border-0 rounded-r-none"
+              required
             />
-            <Button className="bg-blue-600 hover:bg-blue-700 rounded-l-none px-8">
+            <Button 
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 rounded-l-none px-8"
+            >
               Subscribe
             </Button>
-          </div>
+          </form>
         </div>
 
         {/* Footer Links */}

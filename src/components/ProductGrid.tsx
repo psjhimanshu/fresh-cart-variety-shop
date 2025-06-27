@@ -7,9 +7,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProductGridProps {
   initialCategory?: string | null;
+  searchQuery?: string;
 }
 
-export const ProductGrid = ({ initialCategory }: ProductGridProps) => {
+export const ProductGrid = ({ initialCategory, searchQuery }: ProductGridProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(initialCategory || null);
   
   // Update selected category when initialCategory changes
@@ -19,7 +20,7 @@ export const ProductGrid = ({ initialCategory }: ProductGridProps) => {
     }
   }, [initialCategory]);
   
-  const { data: products, isLoading, error } = useProducts(selectedCategory || undefined);
+  const { data: products, isLoading, error } = useProducts(selectedCategory || undefined, searchQuery);
 
   if (error) {
     return (
@@ -38,19 +39,21 @@ export const ProductGrid = ({ initialCategory }: ProductGridProps) => {
       <div className="container mx-auto">
         <div className="text-center mb-8">
           <h3 className="text-3xl font-bold mb-4 text-gray-900">
-            Featured Products
+            {searchQuery ? `Search Results for "${searchQuery}"` : 'Featured Products'}
           </h3>
-          {products && products.length > 0 && (
+          {products && products.length > 0 && !searchQuery && (
             <p className="text-gray-600">
               Discover our amazing collection of products
             </p>
           )}
         </div>
         
-        <CategoryFilter 
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
+        {!searchQuery && (
+          <CategoryFilter 
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
+        )}
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -77,8 +80,10 @@ export const ProductGrid = ({ initialCategory }: ProductGridProps) => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-xl text-gray-600">No products found</p>
-            {selectedCategory && (
+            <p className="text-xl text-gray-600">
+              {searchQuery ? `No products found for "${searchQuery}"` : 'No products found'}
+            </p>
+            {selectedCategory && !searchQuery && (
               <p className="text-gray-500 mt-2">Try selecting a different category</p>
             )}
           </div>

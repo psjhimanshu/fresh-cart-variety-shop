@@ -1,5 +1,6 @@
 
 import { useCategories } from '@/hooks/useCategories';
+import { useProducts } from '@/hooks/useProducts';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface CategorySectionProps {
@@ -37,26 +38,44 @@ export const CategorySection = ({ onCategorySelect }: CategorySectionProps) => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {categories?.slice(0, 3).map((category) => (
-            <div
+            <CategoryCard
               key={category.id}
-              className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer group hover:shadow-md transition-shadow"
-              onClick={() => onCategorySelect?.(category.id)}
-            >
-              <div className="h-64 overflow-hidden">
-                <img
-                  src={category.image_url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop'}
-                  alt={category.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <div className="p-6 text-center">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{category.name}</h3>
-                <p className="text-gray-500 text-sm">0 products</p>
-              </div>
-            </div>
+              category={category}
+              onCategorySelect={onCategorySelect}
+            />
           ))}
         </div>
       </div>
     </section>
+  );
+};
+
+const CategoryCard = ({ 
+  category, 
+  onCategorySelect 
+}: { 
+  category: any; 
+  onCategorySelect?: (categoryId: string) => void; 
+}) => {
+  const { data: products } = useProducts(category.id);
+  const productCount = products?.length || 0;
+
+  return (
+    <div
+      className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer group hover:shadow-md transition-shadow"
+      onClick={() => onCategorySelect?.(category.id)}
+    >
+      <div className="h-64 overflow-hidden">
+        <img
+          src={category.image_url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop'}
+          alt={category.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+      </div>
+      <div className="p-6 text-center">
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">{category.name}</h3>
+        <p className="text-gray-500 text-sm">{productCount} products</p>
+      </div>
+    </div>
   );
 };

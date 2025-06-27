@@ -1,10 +1,11 @@
 
 import { useState } from 'react';
-import { ShoppingCart, Menu, User, Heart, LogOut } from 'lucide-react';
+import { ShoppingCart, Menu, User, Heart, LogOut, Search } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +14,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Link, useNavigate } from 'react-router-dom';
 
-export const Header = () => {
+interface HeaderProps {
+  onSearch?: (query: string) => void;
+}
+
+export const Header = ({ onSearch }: HeaderProps) => {
   const { getTotalItems, setIsCartOpen } = useCart();
   const { user, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
   const totalItems = getTotalItems();
@@ -24,6 +30,13 @@ export const Header = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSearch) {
+      onSearch(searchQuery);
+    }
   };
 
   return (
@@ -45,15 +58,26 @@ export const Header = () => {
             </Link>
           </div>
 
-          {/* Center - Categories (desktop only) */}
-          <div className="hidden md:flex">
-            <Button variant="ghost" className="text-gray-700 hover:text-blue-600">
-              Categories
-            </Button>
+          {/* Center - Search Bar (desktop) */}
+          <div className="hidden md:block flex-1 max-w-md mx-4">
+            <form onSubmit={handleSearch} className="relative">
+              <Input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            </form>
           </div>
 
-          {/* Right side - Account, Wishlist, Cart */}
+          {/* Right side - Categories, Account, Wishlist, Cart */}
           <div className="flex items-center space-x-4">
+            <Button variant="ghost" className="hidden md:flex text-gray-700 hover:text-blue-600">
+              Categories
+            </Button>
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -79,11 +103,6 @@ export const Header = () => {
 
             <Button variant="ghost" size="icon" className="relative">
               <Heart className="w-5 h-5" />
-              <span className="sr-only">Account</span>
-            </Button>
-
-            <Button variant="ghost" size="icon" className="relative">
-              <Heart className="w-5 h-5" />
               <span className="sr-only">Wishlist</span>
             </Button>
 
@@ -106,7 +125,21 @@ export const Header = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden border-t bg-white pb-4">
-            <nav className="flex flex-col space-y-4 pt-4">
+            {/* Mobile Search */}
+            <div className="pt-4 pb-2">
+              <form onSubmit={handleSearch} className="relative">
+                <Input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              </form>
+            </div>
+            
+            <nav className="flex flex-col space-y-4">
               <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
                 Home
               </Link>
